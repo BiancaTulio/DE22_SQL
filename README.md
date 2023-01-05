@@ -1,4 +1,4 @@
-# DE22
+# DE22_SQL
 Code from exercises and assignments 
 
 **BikeStores_Staging**\
