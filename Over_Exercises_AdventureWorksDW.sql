@@ -18,17 +18,19 @@ FROM
 --Region samt medelvärden för Group, Country och Region. Skapa en enda query, använd over
 SELECT DISTINCT
 	SalesTerritoryGroup AS 'Group',
-	ROUND(AVG(SalesAmount) OVER(PARTITION BY SalesTerritoryGroup ORDER BY SalesTerritoryGroup), 2) AS 'AvgSalesByGroup',
+	ROUND(AVG(SalesAmount) OVER(PARTITION BY SalesTerritoryGroup), 2) AS 'AvgSalesByGroup',
 	SalesTerritoryCountry AS 'Country',
-	ROUND(AVG(SalesAmount) OVER(PARTITION BY SalesTerritoryCountry ORDER BY SalesTerritoryCountry), 2) AS 'AvgSalesByCountry',
+	ROUND(AVG(SalesAmount) OVER(PARTITION BY SalesTerritoryCountry), 2) AS 'AvgSalesByCountry',
 	SalesTerritoryRegion AS 'Region',
-	ROUND(AVG(SalesAmount) OVER(PARTITION BY SalesTerritoryRegion ORDER BY SalesTerritoryRegion), 2) AS 'AvgSalesByRegion'
+	ROUND(AVG(SalesAmount) OVER(PARTITION BY SalesTerritoryRegion), 2) AS 'AvgSalesByRegion'
 FROM
 	FactInternetSales AS S
 INNER JOIN
 	DimSalesTerritory AS T
 ON
 	S.SalesTerritoryKey = T.SalesTerritoryKey
+ORDER BY
+	SalesTerritoryGroup, SalesTerritoryCountry, SalesTerritoryRegion
 
 
 --7
