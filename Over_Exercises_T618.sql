@@ -54,7 +54,7 @@ SELECT
 	DeptName,
 	SUM(Salary) OVER() AS 'TotalSalaries',
 	ROUND(CAST((Salary * 100) AS float) / CAST((SUM(Salary) OVER()) AS float), 2) AS 'PercentOfTotal',
-	SUM(Salary) OVER(PARTITION BY DeptName ORDER BY DeptName) AS 'TotalByDept',
+	SUM(Salary) OVER(PARTITION BY DeptName) AS 'TotalByDept',
 	ROUND(CAST((Salary * 100) AS float) / CAST((SUM(Salary) OVER(PARTITION BY DeptName)) AS float), 2) AS 'PercentOfDept'
 FROM
 	Employee As E
@@ -62,4 +62,7 @@ INNER JOIN
 	Department AS D
 ON
 	E.DeptID = D.DeptID
+ORDER BY
+	DeptName
+
 	
