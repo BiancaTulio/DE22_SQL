@@ -21,3 +21,9 @@ Code for getting salary information and percentages from Employee table using OV
 
 **Over_Exercises_AdventureWorksDW**\
 Code for getting sales averages by Territory from FactInternetSales table using OVER(), PARTITION BY() and ORDER BY()
+
+**Subquery_Based_Tables_Exercises**\
+Code for getting the top 3 employees from T618 based on HireDate and Salary with Subquery Based Tables
+
+**Rolling_Calculations_Exercises**\
+YTD Calculation with Subquery Based Tables and OVER() windowed with ROWS
