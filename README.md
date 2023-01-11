@@ -26,4 +26,4 @@ Code for getting sales averages by Territory from FactInternetSales table using 
 Code for getting the top 3 employees from T618 based on HireDate and Salary with Subquery Based Tables
 
 **Rolling_Calculations_Exercises**\
-YTD Calculation on AdventuewWorksDW FactInternetSales with Subquery Based Tables and OVER() windowed with ROWS
+YTD and R12 Calculations on AdventuewWorksDW FactInternetSales with Subquery Based Tables and OVER() windowed with ROWS
