@@ -27,3 +27,9 @@ Code for getting the top 3 employees from T618 based on HireDate and Salary with
 
 **Rolling_Calculations_Exercises**\
 YTD and R12 Calculations on AdventuewWorksDW FactInternetSales with Subquery Based Tables and OVER() windowed with ROWS
+
+**CTE_Exercises_T618**\
+Several exercises using CTE to get different data from T618
+
+**CTE_ExercisesAdventureWorksDW**\
+Several exercises using CTE to get different data from AdventureWorksDW, including Recursive CTE to get hierarchy levels
