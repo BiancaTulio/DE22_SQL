@@ -33,3 +33,6 @@ Several exercises using CTE to get different data from T618
 
 **CTE_ExercisesAdventureWorksDW**\
 Several exercises using CTE to get different data from AdventureWorksDW, including Recursive CTE to get hierarchy levels
+
+**Cursors_Exercises**\
+Cursors for backup of databases and for creating a Fact-like table on T618
