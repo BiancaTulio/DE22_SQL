@@ -1,5 +1,5 @@
 
---1. Gör en cursor som tar backup av samtliga databaser i er SQL-server. Ange valfri destination, exempelvis C:\Temp
+--1. GÃ¶r en cursor som tar backup av samtliga databaser i er SQL-server. Ange valfri destination, exempelvis C:\Temp
 --declare variables
 DECLARE @databaseName VARCHAR(255)
 DECLARE @path VARCHAR(255)
@@ -19,7 +19,7 @@ CURSOR FOR
 	WHERE
 		[name] NOT IN ('master', 'tempdb', 'model', 'msdb')
 	AND
-		[version] IS NOT NULL
+		([status] & 512) != 512  						--checks if the database is not offline
 
 --open cursor
 OPEN
@@ -57,7 +57,7 @@ DEALLOCATE
 	db_autoBackup
 
 
---2. Skapa en tabell vid namn Almost_fact. Kolumnerna ska vara ID (som en räknare för att få unikhet), Date (inte tidpunkt),
+--2. Skapa en tabell vid namn Almost_fact. Kolumnerna ska vara ID (som en rÃ¤knare fÃ¶r att fÃ¥ unikhet), Date (inte tidpunkt),
 --Prod_id, och Amount
 USE 
 	T618
@@ -71,7 +71,7 @@ CREATE TABLE
 		Amount INT)
 
 
---3. Skapa en cursor som går igenom rad efter rad i Order (samt Orderdetails) och lägger in datum, prod_id och Amount i
+--3. Skapa en cursor som gÃ¥r igenom rad efter rad i Order (samt Orderdetails) och lÃ¤gger in datum, prod_id och Amount i
 --respektive kolumn i Almost_fact
 
 DECLARE @date DATE
