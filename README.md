@@ -36,3 +36,8 @@ Several exercises using CTE to get different data from AdventureWorksDW, includi
 
 **Cursors_Exercises**\
 Cursors for backup of databases and for creating a Fact-like table on T618
+
+**ProcedureToBackupDatabases_Exercise**\
+Two different versions of a procedure to backup databases instead of using a cursor 
+
+
