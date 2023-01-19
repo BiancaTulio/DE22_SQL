@@ -51,10 +51,12 @@ BEGIN
 	IF @fragmentation BETWEEN 5 AND 30
 		BEGIN
 			SELECT @fragmentation
+			SELECT 'REORGANIZE'
 		END
 	IF @fragmentation > 30
 		BEGIN
 			SELECT @fragmentation
+			SELECT 'REBUILD'
 		END	
 
 	--fetch next data
