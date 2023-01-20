@@ -89,6 +89,7 @@ BEGIN
 	--if it's more than 5% and less or equal 30%, reorganize the index 
 	IF @fragmentation > 5 AND @fragmentation <= 30
 		BEGIN
+<<<<<<< HEAD
 			SELECT 
 				@tableName AS 'Table', 
 				@indexName AS 'Index', 
@@ -97,11 +98,16 @@ BEGIN
 				'REORGANIZE' AS 'Action'
 			--add 1 to the reorganized indexes' status
 			SELECT @reorganized += 1
+=======
+			SELECT @fragmentation
+			SELECT 'REORGANIZE'
+>>>>>>> main
 		END
 
 	--if it's more than 30%, rebuild the index
 	IF @fragmentation > 30
 		BEGIN
+<<<<<<< HEAD
 			SELECT 
 				@tableName AS 'Table', 
 				@indexName AS 'Index', 
@@ -110,6 +116,10 @@ BEGIN
 				'REBUILD' AS 'Action'
 			--add 1 to the rebuilt indexes' stauts
 			SELECT @reindexed += 1
+=======
+			SELECT @fragmentation
+			SELECT 'REBUILD'
+>>>>>>> main
 		END	
 
 	--add 1 to the checked indexes' status 
