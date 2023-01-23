@@ -4,7 +4,6 @@ USE
 GO
 
 --YoY calculations by month on FactInternetSales				  
-
 --using CTE, get the Year, Month and the SUM() of SalesAmount by Month from FactInternetSales
 WITH
 	MonthlySales
