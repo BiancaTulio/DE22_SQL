@@ -1,23 +1,24 @@
 
 /*	procedure with a cursor to check index fragmentation in the current database and reindex/reorganize indexes if needed	*/
+/*	Note that if an index has less than 8 pages, rebuilding it is not going to reduce fragmentation		*/
 						  
 CREATE PROC
 	usp_indexMaintenance
 AS
+	SET NOCOUNT ON
 
 	-- get the date and time at the start of the script
 	DECLARE @startTime DATETIME = GETDATE()
 
 
 	-- get information about the current database's tables, indexes and fragmentation 
-	-- store the information in a temporary table so it's easy to get the status of checked tables and indexes 
+	-- store the information in a temporary table to get the status of checked tables and indexes 
 	SELECT 
-		OBJECT_NAME(I.OBJECT_ID) AS 'TableName',
+		OBJECT_NAME(S.OBJECT_ID) AS 'TableName',
 		I.[name] AS 'IndexName', 
-		S.index_type_desc AS 'IndexType',
 		CAST(S.avg_fragmentation_in_percent AS decimal(10,2)) AS 'FragmentationInPercent'
 	INTO
-		#TableIndexes
+		#TablesAndIndexes
 	FROM 
 		sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, NULL) AS S			 
 	INNER JOIN 
@@ -27,45 +28,45 @@ AS
 	AND 
 		I.index_id = S.index_id
 	WHERE 
-		OBJECT_NAME(I.OBJECT_ID) != 'sysdiagrams' 
+		OBJECT_NAME(S.OBJECT_ID) != 'sysdiagrams' 		--skip sysdiagrams tables
+	AND
+		I.[name] IS NOT NULL							--skip NULLs, which are tables without indexes  
 	ORDER BY 
 		TableName
 
 	
 	-- get the number of tables and indexes checked to show in the status at the end of the cursor
 	DECLARE @tables INT
-	DECLARE @indexes INT = 0
-	SELECT @tables = COUNT(DISTINCT TableName) FROM #TableIndexes
-	SELECT @indexes = COUNT(DISTINCT IndexName) FROM #TableIndexes
+	DECLARE @indexes INT 
+	SELECT @tables = COUNT(DISTINCT TableName) FROM #TablesAndIndexes
+	SELECT @indexes = COUNT(DISTINCT IndexName) FROM #TablesAndIndexes
 
 
 	-- declare cursor variables
 	DECLARE @tableName VARCHAR(255)
 	DECLARE @indexName VARCHAR(255)
-	DECLARE @indexType VARCHAR(255)
 	DECLARE @fragmentation DECIMAL(10,2)
 
 
 	-- declare and open cursor
 	DECLARE
-		db_reindexingCursor
+		db_cursorIdxMntc
 	CURSOR FOR
 		-- select everything from the temporary table
 		SELECT
 			*
 		FROM
-			#TableIndexes
+			#TablesAndIndexes
 	OPEN
-		db_reindexingCursor
+		db_cursorIdxMntc
 
 
 	-- fetch first data into the variables
 	FETCH NEXT FROM
-		db_reindexingCursor
+		db_cursorIdxMntc
 	INTO
 		@tableName,
 		@indexName,
-		@indexType,
 		@fragmentation
 
 
@@ -73,75 +74,64 @@ AS
 	DECLARE @reindexed INT = 0
 	DECLARE @reorganized INT = 0
 
-	-- loop until the last row
+
+	-- declare variables to execute ALTER INDEX statements inside the cursor
+	DECLARE @reorganizeIdx VARCHAR(MAX) = 'ALTER INDEX ' + @indexName + ' ON ' + @tableName + ' REORGANIZE'
+	DECLARE @rebuildIdx VARCHAR(MAX) = 'ALTER INDEX ' + @indexName + ' ON ' + @tableName + ' REBUILD WITH (ONLINE = ON)'
+
+
+	-- loop until the last row in #TablesAndIndexes
 	WHILE
 		@@FETCH_STATUS = 0
-	BEGIN
-		-- if the fragmentation is less than or equal to 5%, do nothing
-		IF @fragmentation <= 5
-			BEGIN
-				SELECT 
-					@tableName AS 'Table', 
-					@indexName AS 'Index', 
-					@indexType AS 'Type', 
-					@fragmentation AS 'Fragmentation',
-					'SKIP' AS 'Action'
-			END
-	
-		-- if it's more than 5% and less or equal 30%, reorganize the index 
+	BEGIN	
 		IF @fragmentation > 5 AND @fragmentation <= 30
-			BEGIN
-				SELECT 
-					@tableName AS 'Table', 
-					@indexName AS 'Index', 
-					@indexType AS 'Type', 
-					@fragmentation AS 'Fragmentation',
-					'REORGANIZE' AS 'Action'
-				-- add 1 to the reorganized indexes' status
-				SELECT @reorganized += 1
-			END
+		BEGIN
+			-- reorganize index
+			EXEC (@reorganizeIdx)
 
-		-- if it's more than 30%, rebuild the index
+			-- add 1 to the reorganized indexes' status
+			SET @reorganized += 1
+		END
+
 		IF @fragmentation > 30
-			BEGIN
-				SELECT 
-					@tableName AS 'Table', 
-					@indexName AS 'Index', 
-					@indexType AS 'Type', 
-					@fragmentation AS 'Fragmentation',
-					'REBUILD' AS 'Action'
-				-- add 1 to the rebuilt indexes' stauts
-				SELECT @reindexed += 1
-			END	
+		BEGIN
+			-- rebuild index
+			EXEC (@rebuildIdx)
+
+			-- add 1 to the rebuilt indexes' stauts
+			SET @reindexed += 1
+		END	
 	
 		-- fetch next data into the variables
 		FETCH NEXT FROM
-			db_reindexingCursor
+			db_cursorIdxMntc
 		INTO
 			@tableName,
 			@indexName,
-			@indexType,
 			@fragmentation
 	END
 
 
 	-- close and deallocate cursor
 	CLOSE
-		db_reindexingCursor
+		db_cursorIdxMntc
 	DEALLOCATE
-		db_reindexingCursor
+		db_cursorIdxMntc
 
 
 	-- show the final status for the cursor
-	SELECT 'The script started at ' + CAST(@startTime AS varchar(25)) + ' and ended at ' + CAST(GETDATE() AS varchar(25)) + '.'
-	SELECT 'Total elapsed time: ' + CAST(CAST(GETDATE() - @startTime AS TIME) AS varchar(25))
-	SELECT 'The script has checked ' + CAST(@tables AS varchar(5)) + ' tables and '	+ CAST(@indexes AS varchar(5)) + ' indexes.'
-	SELECT CAST(@reorganized AS varchar(5)) + ' indexes were reorganized and ' + CAST(@reindexed AS varchar(5)) + ' indexes were reindexed.'
+	PRINT 'The script started at ' + CAST(@startTime AS varchar(25)) + ' and ended at ' + CAST(GETDATE() AS varchar(25)) + '.' 
+	PRINT 'Total elapsed time: ' + CAST(CAST(GETDATE() - @startTime AS TIME) AS varchar(25)) 
+	PRINT 'The script has checked ' + CAST(@tables AS varchar(5)) + ' table(s) and ' + CAST(@indexes AS varchar(5)) + ' index(es).' 
+	PRINT CAST(@reorganized AS varchar(5)) + ' index(es) reorganized and ' + CAST(@reindexed AS varchar(5)) + ' index(es) rebuilt.'
 
 
 	--drop the temporary table
-	DROP TABLE #TableIndexes
+	DROP TABLE #TablesAndIndexes
+
+	SET NOCOUNT OFF
 GO
+
 
 --execute the procedure
 EXEC usp_indexMaintenance  
