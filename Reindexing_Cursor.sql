@@ -1,6 +1,6 @@
 
 /*	procedure with a cursor to check index fragmentation in the current database and reindex/reorganize indexes if needed	*/
-/*	Note that if an index has less than 8 pages, rebuilding it is not going to reduce fragmentation		*/
+/*	note that if an index has less than 8 pages, rebuilding it is not going to reduce fragmentation		*/
 						  
 CREATE PROC
 	usp_indexMaintenance
@@ -11,10 +11,10 @@ AS
 	DECLARE @startTime DATETIME = GETDATE()
 
 
-	-- get information about the current database's tables, indexes and fragmentation 
-	-- store the information in a temporary table to get the status of checked tables and indexes 
+	-- get the current database's tables, indexes and fragmentation in percent
+	-- store the information in a temporary table so it's available outside the cursor
 	SELECT 
-		OBJECT_NAME(S.OBJECT_ID) AS 'TableName',
+		OBJECT_NAME(S.[object_id]) AS 'TableName',
 		I.[name] AS 'IndexName', 
 		CAST(S.avg_fragmentation_in_percent AS decimal(10,2)) AS 'FragmentationInPercent'
 	INTO
@@ -22,15 +22,18 @@ AS
 	FROM 
 		sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, NULL) AS S			 
 	INNER JOIN 
-		sys.indexes AS I		--join sys.indexes to get index name						  		   
+		--join sys.indexes to get index name						  		   
+		sys.indexes AS I								
 	ON 
-		I.object_id = S.object_id
+		I.[object_id] = S.[object_id]
 	AND 
 		I.index_id = S.index_id
 	WHERE 
-		OBJECT_NAME(S.OBJECT_ID) != 'sysdiagrams' 		--skip sysdiagrams tables
+		--skip sysdiagrams tables
+		OBJECT_NAME(S.[object_id]) != 'sysdiagrams' 	
 	AND
-		I.[name] IS NOT NULL							--skip NULLs, which are tables without indexes  
+		--skip indexes named NULL, which are tables without indexes  
+		I.[name] IS NOT NULL							
 	ORDER BY 
 		TableName
 
@@ -71,7 +74,7 @@ AS
 
 
 	-- declare variables to keep track of the reindexing status
-	DECLARE @reindexed INT = 0
+	DECLARE @rebuilt INT = 0
 	DECLARE @reorganized INT = 0
 
 
@@ -88,7 +91,6 @@ AS
 		BEGIN
 			-- reorganize index
 			EXEC (@reorganizeIdx)
-
 			-- add 1 to the reorganized indexes' status
 			SET @reorganized += 1
 		END
@@ -97,9 +99,8 @@ AS
 		BEGIN
 			-- rebuild index
 			EXEC (@rebuildIdx)
-
 			-- add 1 to the rebuilt indexes' stauts
-			SET @reindexed += 1
+			SET @rebuilt += 1
 		END	
 	
 		-- fetch next data into the variables
@@ -119,11 +120,11 @@ AS
 		db_cursorIdxMntc
 
 
-	-- show the final status for the cursor
+	-- print the final status for the cursor
 	PRINT 'The script started at ' + CAST(@startTime AS varchar(25)) + ' and ended at ' + CAST(GETDATE() AS varchar(25)) + '.' 
 	PRINT 'Total elapsed time: ' + CAST(CAST(GETDATE() - @startTime AS TIME) AS varchar(25)) 
 	PRINT 'The script has checked ' + CAST(@tables AS varchar(5)) + ' table(s) and ' + CAST(@indexes AS varchar(5)) + ' index(es).' 
-	PRINT CAST(@reorganized AS varchar(5)) + ' index(es) reorganized and ' + CAST(@reindexed AS varchar(5)) + ' index(es) rebuilt.'
+	PRINT CAST(@reorganized AS varchar(5)) + ' index(es) reorganized and ' + CAST(@rebuilt AS varchar(5)) + ' index(es) rebuilt.'
 
 
 	--drop the temporary table
