@@ -1,6 +1,5 @@
 
 /*	procedure with a cursor to check index fragmentation in the current database and reindex/reorganize indexes if needed	*/
-/*	note that if an index has less than 8 pages, rebuilding it is not going to reduce fragmentation		*/
 						  
 CREATE PROC
 	usp_indexMaintenance
