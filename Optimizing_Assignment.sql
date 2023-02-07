@@ -6,6 +6,7 @@ GO
 
 SET STATISTICS IO ON
 SET STATISTICS TIME ON
+GO
 
 /*	SOLUTION 1	*/
 
@@ -135,7 +136,7 @@ AS
 		S.CustomerKey = C.CustomerKey
 	GROUP BY
 		S.CustomerKey,
-		FirstName,
+		FirstName,						
 		LastName
 ) 
 SELECT
@@ -181,14 +182,95 @@ ORDER BY
 	TotalSales DESC
 
 
-CREATE INDEX idx_DimCustomer_CustomerKey ON DimCustomer(CustomerKey) INCLUDE (FirstName, LastName)
-CREATE INDEX idx_FactInternetSales_CustomerKey ON FactInternetSales(CustomerKey) INCLUDE (SalesAmount)
+/*	SOLUTION 7	*/
 
-CREATE INDEX idx_DimCustomer_CKOnly ON DimCustomer(CustomerKey)
-CREATE INDEX idx_FactInternetSales_CKOnly ON FactInternetSales(CustomerKey)
+WITH
+	CustomerInfo
+AS
+(
+	SELECT
+		FirstName,
+		LastName,
+		CustomerKey
+	FROM
+		DimCustomer
+),
+	SalesInfo
+AS
+(
+	SELECT
+		CustomerKey,
+		SUM(SalesAmount) AS 'TotalSales'
+	FROM
+		FactInternetSales
+	GROUP BY
+		CustomerKey
+)
+SELECT TOP 1 WITH TIES
+	FirstName,
+	LastName
+FROM
+	CustomerInfo AS C
+INNER JOIN
+	SalesInfo AS S
+ON
+	C.CustomerKey = S.CustomerKey
+ORDER BY
+	TotalSales DESC
 
-CREATE INDEX idx_DimCustomer_FirstNameLastName ON DimCustomer(FirstName, LastName)
-CREATE INDEX idx_FactInternetSales_SalesAmount ON FactInternetSales(SalesAmount)
+
+
+/*	SOLUTION 8	*/
+
+WITH
+	SalesPerCustomer
+AS
+(
+	SELECT
+		CustomerKey,
+		SUM(SalesAmount) AS 'TotalSales'
+	FROM
+		FactInternetSales
+	GROUP BY
+		CustomerKey
+) 
+SELECT TOP 1 WITH TIES
+	FirstName,
+	LastName,
+	TotalSales
+FROM
+	DimCustomer AS D
+INNER JOIN
+	SalesPerCustomer AS S
+ON
+	D.CustomerKey = S.CustomerKey
+ORDER BY
+	TotalSales DESC
+
+
+
+
+
+-- Indexes chosen by the most queries
+-- CREATE INDEX idx_DimCustomer_CustomerKey ON DimCustomer(CustomerKey) INCLUDE (FirstName, LastName)
+-- CREATE INDEX idx_FactInternetSales_CustomerKey ON FactInternetSales(CustomerKey) INCLUDE (SalesAmount)
+
+
+-- Solution 2 chose this index instead of the other ones
+-- CREATE INDEX idx_DimCustomer_FirstNameLastName ON DimCustomer(FirstName, LastName)
+
+
+-- Solution 2, 3 and 5 chose this index instead of the other ones
+-- CREATE INDEX idx_DimCustomer_CustFirstLast ON DimCustomer(CustomerKey, FirstName, LastName)
+
+
+-- Indexes that weren't chosen at all
+-- CREATE INDEX idx_DimCustomer_CKOnly ON DimCustomer(CustomerKey)
+-- CREATE INDEX idx_FactInternetSales_CKOnly ON FactInternetSales(CustomerKey)
+-- CREATE INDEX idx_FactInternetSales_SalesAmount ON FactInternetSales(SalesAmount)
+-- CREATE INDEX idx_FactInternetSales_CustSales ON FactInternetSales(CustomerKey, SalesAmount)
+
+
 
 
 
