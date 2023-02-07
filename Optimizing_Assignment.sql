@@ -181,5 +181,14 @@ ORDER BY
 	TotalSales DESC
 
 
+CREATE INDEX idx_DimCustomer_CustomerKey ON DimCustomer(CustomerKey) INCLUDE (FirstName, LastName)
+CREATE INDEX idx_FactInternetSales_CustomerKey ON FactInternetSales(CustomerKey) INCLUDE (SalesAmount)
+
+CREATE INDEX idx_DimCustomer_CKOnly ON DimCustomer(CustomerKey)
+CREATE INDEX idx_FactInternetSales_CKOnly ON FactInternetSales(CustomerKey)
+
+CREATE INDEX idx_DimCustomer_FirstNameLastName ON DimCustomer(FirstName, LastName)
+CREATE INDEX idx_FactInternetSales_SalesAmount ON FactInternetSales(SalesAmount)
+
 
 
