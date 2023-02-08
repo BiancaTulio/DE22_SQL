@@ -249,6 +249,33 @@ ORDER BY
 
 
 
+/*	SOLUTION 9	*/
+
+WITH
+	SalesPerCustomer
+AS
+(
+	SELECT  
+		CustomerKey,
+		SUM(SalesAmount) AS 'TotalSales'
+	FROM
+		FactInternetSales
+	GROUP BY
+		CustomerKey
+)
+SELECT TOP 1 WITH TIES
+	FirstName,
+	LastName
+FROM
+	DimCustomer AS D
+INNER JOIN
+	SalesPerCustomer AS S
+ON
+	D.CustomerKey = S.CustomerKey
+ORDER BY 
+	TotalSales DESC	
+
+
 
 
 -- Indexes chosen by the most queries

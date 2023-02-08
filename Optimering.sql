@@ -9,9 +9,19 @@ SET STATISTICS TIME ON
 GO
 
 
-/*	SOLUTION 1	*/
+-- The queries were first executed using the existing indexes in the database
+-- After that, the following indexes were created and the queries were executed again 
+-- Statitics and Query Plans for all queries with both indexes are shown and analysed in the .docx file
+
+CREATE INDEX idx_DimCustomer_CustomerKey ON DimCustomer(CustomerKey) INCLUDE (FirstName, LastName)
+CREATE INDEX idx_FactInternetSales_CustomerKey ON FactInternetSales(CustomerKey) INCLUDE (SalesAmount)
+
+
+
+/*	QUERY 1	*/
 -- Selecting the top 1 results with ties (in case more than one customer have the same value) of SUM(SalesAmount) 
 -- Grouped by CustomerKey DESC and INNER JOIN with DimCustomer on CustomerKey to get FirstName and LastName
+
 SELECT TOP 1 WITH TIES
 	FirstName,
 	LastName,
@@ -29,10 +39,16 @@ GROUP BY
 ORDER BY
 	SUM(SalesAmount) DESC
 
+-- Very straightforward, simple and with good performance when compared to the other solutions
+-- TotalSales has to be shown in the results, so not ideal if this data should not be part of the result set
+-- The second most effective of the my three solutions according to my analysis, both with existing and new indexes
 
-/*	SOLUTION 2	*/
+
+
+/*	QUERY 2	*/
 -- Using RANK() in a CTE ordered by SUM(SalesAmount) DESC and grouped by CustomerKey
--- INNER JOIN the CTE with DimCustomer on Customer Key to get FirstName and LastName for the first ranked row(s)
+-- INNER JOIN the CTE with DimCustomer on CustomerKey to get FirstName and LastName for the first ranked row(s)
+
 WITH
 	SalesPerCustomer
 AS
@@ -57,51 +73,60 @@ ON
 WHERE
 	Ranking = 1
 
+-- The worst performing of the three solutions, slower and using more resources both with existing and new indexes
+-- Still, it might be useful in other contexts or more complex queries
 
-/*	SOLUTION 3	*/
+
+
+/*	QUERY 3	*/
 -- Also using a CTE but with SUM(SalesAmount) grouped by CustomerKey instead of RANK()
--- Same INNER JOIN between the CTE and DimCustomer to get FirstName and Lastname
--- Using the CTE in a subquery in the WHERE clause to get the rows with MAX(TotalSales)
+-- Selecting top 1 with ties in the CTE then joining it with DimCustomer to get FirstName and Lastname
+
 WITH
 	SalesPerCustomer
 AS
 (
-	SELECT
+	SELECT TOP 1 WITH TIES
 		CustomerKey,
 		SUM(SalesAmount) AS 'TotalSales'
 	FROM
 		FactInternetSales
 	GROUP BY
 		CustomerKey
+	ORDER BY
+		SUM(SalesAmount) DESC
 ) 
-SELECT
+SELECT 
 	FirstName,
 	LastName
 FROM
-	DimCustomer AS D
-INNER JOIN
 	SalesPerCustomer AS S
+INNER JOIN
+	DimCustomer AS D	
 ON
-	D.CustomerKey = S.CustomerKey
-WHERE
-	TotalSales = (SELECT MAX(TotalSales) FROM SalesPerCustomer)
+	S.CustomerKey = D.CustomerKey
+
+-- Very similar performance to Query 1 in this exercise but might make a difference when querying big amounts of data
+-- Less Logical Reads with both existing and new indexes, the most effective of the three solutions
 
 
-/*	SOLUTION 4	*/
--- Same as the previous one (CTE to calculate SUM(SalesAmount), INNER JOIN with FactInternetSales)
--- But selecting the top 1 results with ties like in the first solution 
+
+/*	QUERY 3 ALT	*/
+-- Wondering if less Logical Reads than Query 1 was due to the CTE itself or to the filtering being done before the join
+-- Rewrote Query 3 using SELECT TOP 1 WITH TIES outside the CTE
+
 WITH
 	SalesPerCustomer
 AS
 (
-	SELECT
+	SELECT  
 		CustomerKey,
 		SUM(SalesAmount) AS 'TotalSales'
 	FROM
 		FactInternetSales
 	GROUP BY
 		CustomerKey
-) 
+)
 SELECT TOP 1 WITH TIES
 	FirstName,
 	LastName
@@ -111,5 +136,10 @@ INNER JOIN
 	SalesPerCustomer AS S
 ON
 	D.CustomerKey = S.CustomerKey
-ORDER BY
+ORDER BY 
 	TotalSales DESC
+
+-- Statistics were almost identical to Query 1, meaning the CTE itself didn't alter the performance
+-- Might be a good solution for code readability purposes or to remove TotalSales from the result set (comparing to Query 1)
+-- But filtering the results before joining DimCustomer is what provided less Logical Reads
+
