@@ -9,11 +9,11 @@ AS
 	-- get the date and time at the start of the script
 	DECLARE @startTime DATETIME = GETDATE()
 
-
+	
 	-- get the current database's tables, indexes and fragmentation in percent
 	-- store the information in a temporary table so it's available outside the cursor
-	SELECT 
-		OBJECT_NAME(S.[object_id]) AS 'TableName',
+	SELECT 	
+		OBJECT_SCHEMA_NAME(S.[object_id]) + '.' + OBJECT_NAME(S.[object_id]) AS 'TableName',
 		I.[name] AS 'IndexName', 
 		CAST(S.avg_fragmentation_in_percent AS decimal(10,2)) AS 'FragmentationInPercent'
 	INTO
@@ -21,18 +21,18 @@ AS
 	FROM 
 		sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, NULL) AS S			 
 	INNER JOIN 
-		--join sys.indexes to get index name						  		   
+		-- join sys.indexes to get index name						  		   
 		sys.indexes AS I								
 	ON 
 		I.[object_id] = S.[object_id]
 	AND 
 		I.index_id = S.index_id
 	WHERE 
-		--skip sysdiagrams tables
+		-- skip sysdiagrams tables
 		OBJECT_NAME(S.[object_id]) != 'sysdiagrams' 	
 	AND
-		--skip indexes named NULL, which are tables without indexes  
-		I.[name] IS NOT NULL							
+		-- skip NULL named indexes (tables without index)
+		I.[name] IS NOT NULL
 	ORDER BY 
 		TableName
 
@@ -85,7 +85,8 @@ AS
 	-- loop until the last row in #TablesAndIndexes
 	WHILE
 		@@FETCH_STATUS = 0
-	BEGIN	
+	BEGIN		
+
 		IF @fragmentation > 5 AND @fragmentation <= 30
 		BEGIN
 			-- reorganize index
