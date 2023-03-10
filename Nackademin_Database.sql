@@ -291,5 +291,21 @@ INSERT INTO Classes VALUES (6, NULL, 1, '2023-02-21')
 INSERT INTO Classes VALUES (6, 4, 0, '2023-02-23')
 
 
+--some queries to test the database
+SELECT
+	FirstName,
+	LastName,
+	ProgramName
+FROM
+	Students AS S
+INNER JOIN
+	Enrollment AS E
+ON	
+	S.StudentID = E.StudentID
+INNER JOIN
+	Programs AS P
+ON 
+	E.ProgramID = P.ProgramID
+
 
 
