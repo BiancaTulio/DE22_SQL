@@ -27,13 +27,15 @@ CREATE TABLE
 		StudentID INT IDENTITY(1,1) PRIMARY KEY,
 		FirstName VARCHAR(50) NOT NULL,
 		LastName VARCHAR(50) NOT NULL,
-		Personnummer VARCHAR(12) NOT NULL
+		Personnummer VARCHAR(12) NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Students VALUES ('Bianca', 'Tulio Yarck', '8903186420')
-INSERT INTO Students VALUES ('Roberta', 'de Souza Rodrigues Alves', '8703091234')
-INSERT INTO Students VALUES ('Dhiana Deva', 'Cavalcanti Rocha', '8902231234')
-INSERT INTO Students VALUES ('Bruna', 'Tulio Yarck', '8208181234')
+INSERT INTO Students VALUES ('Bianca', 'Tulio Yarck', '8903186420', '2023-03-13', 'Admin')
+INSERT INTO Students VALUES ('Roberta', 'de Souza Rodrigues Alves', '8703091234', '2023-03-13', 'Admin')
+INSERT INTO Students VALUES ('Dhiana Deva', 'Cavalcanti Rocha', '8902231234', '2023-03-13', 'Admin')
+INSERT INTO Students VALUES ('Bruna', 'Tulio Yarck', '8208181234', '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -46,13 +48,20 @@ CREATE TABLE
 		Email VARCHAR(100) NOT NULL,
 		EmergencyContact VARCHAR(100),
 		EmergencyPhone VARCHAR(15),
-		CSN INT
+		CSN INT  NOT NULL,
+		StudentPassword VARBINARY(MAX),
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO StudentInfo VALUES (1, 'Ringvägen 6', '11726', '0738715690', 'bianca.yarck@gmail.com', 'Dhiana (Sambo)', '123456789', 1)
-INSERT INTO StudentInfo VALUES (2, 'Ringvägen 6', '11726', '123456789', 'betaalves.gd@gmail.com', 'Bianca (Sambo)', '9738715690', 0)
-INSERT INTO StudentInfo VALUES (3, 'Ringvägen 6', '11726', '123456789', 'dhianadeva@gmail.com', 'Bianca (Sambo)', '123456789', 0)
-INSERT INTO StudentInfo VALUES (4, 'Rua Marechal Castelo Branco', '80050020', '0738715690', 'brunatulio@gmail.com', NULL, NULL, 0)
+INSERT INTO StudentInfo VALUES (1, 'Ringvägen 6', '11726', '0738715690', 'bianca.yarck@gmail.com', 'Dhiana (Sambo)', 
+								'123456789', 1, HASHBYTES('md5','abc123'), '2023-03-13', 'Admin')
+INSERT INTO StudentInfo VALUES (2, 'Ringvägen 6', '11726', '123456789', 'betaalves.gd@gmail.com', 'Bianca (Sambo)', 
+								'9738715690', 0, 'cvn345', '2023-03-13', 'Admin')
+INSERT INTO StudentInfo VALUES (3, 'Ringvägen 6', '11726', '123456789', 'dhianadeva@gmail.com', 'Bianca (Sambo)', 
+								'123456789', 0, 'bnm890', '2023-03-13', 'Admin')
+INSERT INTO StudentInfo VALUES (4, 'Rua Marechal Castelo Branco', '80050020', '0738715690', 'brunatulio@gmail.com', 
+								NULL, NULL, 0, 'lkj765', '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -60,13 +69,15 @@ CREATE TABLE
 		StaffID INT IDENTITY(1,1) PRIMARY KEY,
 		FirstName VARCHAR(50) NOT NULL,
 		LastName VARCHAR(50) NOT NULL,
-		Personnummer VARCHAR(12) NOT NULL
+		Personnummer VARCHAR(12) NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Staff VALUES ('Mikael', 'Lönroos', '1234567890')
-INSERT INTO Staff VALUES ('Andreas', 'Någonting', '1234567890')
-INSERT INTO Staff VALUES ('Ottilia', 'Någonting', '1234567890')
-INSERT INTO Staff VALUES ('Astrid', 'Någonting', '1234567890')
+INSERT INTO Staff VALUES ('Mikael', 'Lönroos', '1234567890', '2023-03-13', 'Admin')
+INSERT INTO Staff VALUES ('Andreas', 'Någonting', '1234567890', '2023-03-13', 'Admin')
+INSERT INTO Staff VALUES ('Ottilia', 'Någonting', '1234567890', '2023-03-13', 'Admin')
+INSERT INTO Staff VALUES ('Astrid', 'Någonting', '1234567890', '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -79,39 +90,50 @@ CREATE TABLE
 		Email VARCHAR(100) NOT NULL,
 		EmergencyContact VARCHAR(100),
 		EmergencyPhone VARCHAR(15),
-		BankAccount VARCHAR(50) NOT NULL
+		BankAccount VARCHAR(50) NOT NULL,
+		StaffPassword VARBINARY(MAX),
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO StaffInfo VALUES (1, 'Tomtebodavägen 3A', '17165', '1234567890', 'milo@yh.nackademin.se', NULL, NULL, '0987654321')
-INSERT INTO StaffInfo VALUES (2, 'Tomtebodavägen 3A', '17165', '1234567890', 'anna@yh.nackademin.se', NULL, NULL, '0987654321')
-INSERT INTO StaffInfo VALUES (3, 'Tomtebodavägen 3A', '17165', '1234567890', 'otna@yh.nackademin.se', NULL, NULL, '0987654321')
-INSERT INTO StaffInfo VALUES (4, 'Tomtebodavägen 3A', '17165', '1234567890', 'asna@yh.nackademin.se', NULL, NULL, '0987654321')
+INSERT INTO StaffInfo VALUES (1, 'Tomtebodavägen 3A', '17165', '1234567890', 'milo@yh.nackademin.se', NULL, NULL, 
+							'0987654321', 'uio678', '2023-03-13', 'Admin')
+INSERT INTO StaffInfo VALUES (2, 'Tomtebodavägen 3A', '17165', '1234567890', 'anna@yh.nackademin.se', NULL, NULL, 
+							'0987654321', 'tyu456', '2023-03-13', 'Admin')
+INSERT INTO StaffInfo VALUES (3, 'Tomtebodavägen 3A', '17165', '1234567890', 'otna@yh.nackademin.se', NULL, NULL, 
+							'0987654321', 'dfg345', '2023-03-13', 'Admin')
+INSERT INTO StaffInfo VALUES (4, 'Tomtebodavägen 3A', '17165', '1234567890', 'asna@yh.nackademin.se', NULL, NULL, 
+							'0987654321', 'yui567', '2023-03-13', 'Admin')
 
-
+ 
 CREATE TABLE
 	Departments(
 		DepartmentID INT IDENTITY(1,1) PRIMARY KEY, 
-		DepartmentName VARCHAR(50) NOT NULL
+		DepartmentName VARCHAR(50) NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Departments VALUES ('Executive')
-INSERT INTO Departments VALUES ('Administration')
-INSERT INTO Departments VALUES ('Academy')
+INSERT INTO Departments VALUES ('Executive', '2023-03-13', 'Admin')
+INSERT INTO Departments VALUES ('Administration', '2023-03-13', 'Admin')
+INSERT INTO Departments VALUES ('Academy', '2023-03-13', 'Admin')
 
 
 CREATE TABLE
 	Roles(
 		RoleID INT IDENTITY(1,1) PRIMARY KEY, 
 		RoleName VARCHAR(50) NOT NULL,
-		DepartmentID INT FOREIGN KEY REFERENCES Departments(DepartmentID) NOT NULL
+		DepartmentID INT FOREIGN KEY REFERENCES Departments(DepartmentID) NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Roles VALUES ('CEO', 1)
-INSERT INTO Roles VALUES ('CTO', 1)
-INSERT INTO Roles VALUES ('Program Manager', 2)
-INSERT INTO Roles VALUES ('Secretary', 2)
-INSERT INTO Roles VALUES ('Teacher', 3)
-INSERT INTO Roles VALUES ('Consultant', 3)
+INSERT INTO Roles VALUES ('CEO', 1, '2023-03-13', 'Admin')
+INSERT INTO Roles VALUES ('CTO', 1, '2023-03-13', 'Admin')
+INSERT INTO Roles VALUES ('Program Manager', 2, '2023-03-13', 'Admin')
+INSERT INTO Roles VALUES ('Secretary', 2, '2023-03-13', 'Admin')
+INSERT INTO Roles VALUES ('Teacher', 3, '2023-03-13', 'Admin')
+INSERT INTO Roles VALUES ('Consultant', 3, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -122,13 +144,15 @@ CREATE TABLE
 		StartDate DATETIME2 NOT NULL,
 		EndDate DATETIME2,
 		RoleID INT FOREIGN KEY REFERENCES Roles(RoleID) NOT NULL,
-		ManagerID INT FOREIGN KEY REFERENCES Staff(StaffID)
+		ManagerID INT FOREIGN KEY REFERENCES Staff(StaffID),
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Contracts VALUES (1, 'Permanent', '2020-08-01', NULL, 5, 3)
-INSERT INTO Contracts VALUES (2, 'Temporary', '2023-08-01', '2023-09-01', 6, 3)
-INSERT INTO Contracts VALUES (3, 'Permanent', '2020-08-01', NULL, 3, 4)
-INSERT INTO Contracts VALUES (4, 'Permanent', '2002-01-01', NULL, 1, NULL)
+INSERT INTO Contracts VALUES (1, 'Permanent', '2020-08-01', NULL, 5, 3, '2023-03-13', 'Admin')
+INSERT INTO Contracts VALUES (2, 'Temporary', '2023-08-01', '2023-09-01', 6, 3, '2023-03-13', 'Admin')
+INSERT INTO Contracts VALUES (3, 'Permanent', '2020-08-01', NULL, 3, 4, '2023-03-13', 'Admin')
+INSERT INTO Contracts VALUES (4, 'Permanent', '2002-01-01', NULL, 1, NULL, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -143,44 +167,50 @@ CREATE TABLE
 		SickLeaveHours INT,
 		BonusPercent DECIMAL(10,2),
 		TotalAmount AS ((HourPay * WorkedHours) + ((HourPay * WorkedHours) * BonusPercent) - 
-							(SickLeaveHours * HourPay) + (ExtraHours * (HourPay * 1.5)))
+							(SickLeaveHours * HourPay) + (ExtraHours * (HourPay * 1.5))),
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Salaries VALUES (1, '2023-02-25', 2, 190, 64, 16, 0, 0.1)
-INSERT INTO Salaries VALUES (1, '2023-03-25', 3, 190, 80, 4, 8, 0.1)
-INSERT INTO Salaries VALUES (2, '2022-08-25', 8, 140, 64, 96, 0, 0)
-INSERT INTO Salaries VALUES (3, '2023-02-25', 2, 160, 120, 12, 12, 0)
-INSERT INTO Salaries VALUES (3, '2023-03-25', 3, 160, 120, 0, 0, 0)
-INSERT INTO Salaries VALUES (4, '2023-02-25', 2, 250, 200, 9, 16, 0.3)
-INSERT INTO Salaries VALUES (4, '2023-03-25', 3, 250, 200, 2, 0, 0.3)
+INSERT INTO Salaries VALUES (1, '2023-02-25', 2, 190, 64, 16, 0, 0.1, '2023-03-13', 'Admin')
+INSERT INTO Salaries VALUES (1, '2023-03-25', 3, 190, 80, 4, 8, 0.1, '2023-03-13', 'Admin')
+INSERT INTO Salaries VALUES (2, '2022-08-25', 8, 140, 64, 96, 0, 0, '2023-03-13', 'Admin')
+INSERT INTO Salaries VALUES (3, '2023-02-25', 2, 160, 120, 12, 12, 0, '2023-03-13', 'Admin')
+INSERT INTO Salaries VALUES (3, '2023-03-25', 3, 160, 120, 0, 0, 0, '2023-03-13', 'Admin')
+INSERT INTO Salaries VALUES (4, '2023-02-25', 2, 250, 200, 9, 16, 0.3, '2023-03-13', 'Admin')
+INSERT INTO Salaries VALUES (4, '2023-03-25', 3, 250, 200, 2, 0, 0.3, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
 	Branches(
 		BranchID INT IDENTITY(1,1) PRIMARY KEY, 
-		BranchName VARCHAR(50) NOT NULL
+		BranchName VARCHAR(50) NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Branches VALUES ('IT')
-INSERT INTO Branches VALUES ('Design')
-INSERT INTO Branches VALUES ('Communication')
-INSERT INTO Branches VALUES ('Short Courses')
+INSERT INTO Branches VALUES ('IT', '2023-03-13', 'Admin')
+INSERT INTO Branches VALUES ('Design', '2023-03-13', 'Admin')
+INSERT INTO Branches VALUES ('Communication', '2023-03-13', 'Admin')
+INSERT INTO Branches VALUES ('Short Courses', '2023-03-13', 'Admin')
 
 
 CREATE TABLE
 	ProgramTypes(
 		ProgramTypeID INT IDENTITY(1,1) PRIMARY KEY,
 		ProgramTypeName VARCHAR(50),
-		BranchID INT FOREIGN KEY REFERENCES Branches(BranchID)
+		BranchID INT FOREIGN KEY REFERENCES Branches(BranchID),
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO ProgramTypes VALUES ('Data Engineer', 1)
-INSERT INTO ProgramTypes VALUES ('Business Intelligence', 1)
-INSERT INTO ProgramTypes VALUES ('DevOps Engineer', 1)
-INSERT INTO ProgramTypes VALUES ('Digital Design', 2)
-INSERT INTO ProgramTypes VALUES ('Package Design', 2)
-INSERT INTO ProgramTypes VALUES ('Marketing', 3)
-INSERT INTO ProgramTypes VALUES ('SQL Programming', 4)
+INSERT INTO ProgramTypes VALUES ('Data Engineer', 1, '2023-03-13', 'Admin')
+INSERT INTO ProgramTypes VALUES ('Business Intelligence', 1, '2023-03-13', 'Admin')
+INSERT INTO ProgramTypes VALUES ('DevOps Engineer', 1, '2023-03-13', 'Admin')
+INSERT INTO ProgramTypes VALUES ('Digital Design', 2, '2023-03-13', 'Admin')
+INSERT INTO ProgramTypes VALUES ('Package Design', 2, '2023-03-13', 'Admin')
+INSERT INTO ProgramTypes VALUES ('Marketing', 3, '2023-03-13', 'Admin')
+INSERT INTO ProgramTypes VALUES ('SQL Programming', 4, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -191,14 +221,16 @@ CREATE TABLE
 		Points INT NOT NULL,
 		StartDate DATETIME2 NOT NULL,
 		EndDate DATETIME2 NOT NULL,
-		ProgramManagerID INT FOREIGN KEY REFERENCES Staff(StaffID) 
+		ProgramManagerID INT FOREIGN KEY REFERENCES Staff(StaffID),
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL 
 	)
 
-INSERT INTO Programs VALUES ('DE22', 1, 400, '2022-08-20', '2024-06-01', 3)
-INSERT INTO Programs VALUES ('DE23', 1, 400, '2023-08-20', '2025-06-01', 3)
-INSERT INTO Programs VALUES ('BI22', 2, 400, '2022-08-20', '2024-06-01', 3)
-INSERT INTO Programs VALUES ('DD22', 4, 400, '2022-08-20', '2024-06-01', 3)
-INSERT INTO Programs VALUES ('SQL22', 7, 40, '2022-06-15', '2024-08-15', 3)
+INSERT INTO Programs VALUES ('DE22', 1, 400, '2022-08-20', '2024-06-01', 3, '2023-03-13', 'Admin')
+INSERT INTO Programs VALUES ('DE23', 1, 400, '2023-08-20', '2025-06-01', 3, '2023-03-13', 'Admin')
+INSERT INTO Programs VALUES ('BI22', 2, 400, '2022-08-20', '2024-06-01', 3, '2023-03-13', 'Admin')
+INSERT INTO Programs VALUES ('DD22', 4, 400, '2022-08-20', '2024-06-01', 3, '2023-03-13', 'Admin')
+INSERT INTO Programs VALUES ('SQL22', 7, 40, '2022-06-15', '2024-08-15', 3, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -209,30 +241,36 @@ CREATE TABLE
 		Points INT NOT NULL,
 		StartDate DATETIME2 NOT NULL,
 		EndDate DATETIME2 NOT NULL,
-		TeacherID INT FOREIGN KEY REFERENCES Staff(StaffID)
+		TeacherID INT FOREIGN KEY REFERENCES Staff(StaffID),
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Courses VALUES ('Business Processes', 1, 30, '2022-08-20', '2022-09-01', 2)
-INSERT INTO Courses VALUES ('Business Processes', 2, 30, '2022-08-20', '2022-09-01', 2)
-INSERT INTO Courses VALUES ('SQL1', 1, 40, '2022-09-02', '2022-11-01', 1)
-INSERT INTO Courses VALUES ('SQL1', 2, 40, '2022-09-02', '2022-11-01', 1)
-INSERT INTO Courses VALUES ('SQL2', 1, 40, '2022-11-02', '2023-01-01', 1)
-INSERT INTO Courses VALUES ('Data Modeling', 1, 50, '2023-01-02', '2022-03-01', 1)
-INSERT INTO Courses VALUES ('SQL1', 5, 20, '2022-06-15', '2022-07-15', 1)
-INSERT INTO Courses VALUES ('SQL2', 5, 20, '2022-07-16', '2022-08-15', 1)
+INSERT INTO Courses VALUES ('Business Processes', 1, 30, '2022-08-20', '2022-09-01', 2, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('Business Processes', 1, 30, '2022-08-20', '2022-09-01', 2, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('Business Processes', 1, 30, '2022-08-20', '2022-09-01', 2, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('Business Processes', 2, 30, '2022-08-20', '2022-09-01', 2, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('SQL1', 1, 40, '2022-09-02', '2022-11-01', 1, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('SQL1', 2, 40, '2022-09-02', '2022-11-01', 1, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('SQL2', 1, 40, '2022-11-02', '2023-01-01', 1, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('Data Modeling', 1, 50, '2023-01-02', '2022-03-01', 1, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('SQL1', 5, 20, '2022-06-15', '2022-07-15', 1, '2023-03-13', 'Admin')
+INSERT INTO Courses VALUES ('SQL2', 5, 20, '2022-07-16', '2022-08-15', 1, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
 	Enrollment(
 		EnrollmentID INT IDENTITY(1,1) PRIMARY KEY,
 		ProgramID INT FOREIGN KEY REFERENCES Programs(ProgramID) NOT NULL,
-		StudentID INT FOREIGN KEY REFERENCES Students(StudentID) NOT NULL
+		StudentID INT FOREIGN KEY REFERENCES Students(StudentID) NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Enrollment VALUES (1, 1)
-INSERT INTO Enrollment VALUES (1, 3)
-INSERT INTO Enrollment VALUES (4, 2)
-INSERT INTO Enrollment VALUES (5, 4)
+INSERT INTO Enrollment VALUES (1, 1, '2023-03-13', 'Admin')
+INSERT INTO Enrollment VALUES (1, 3, '2023-03-13', 'Admin')
+INSERT INTO Enrollment VALUES (4, 2, '2023-03-13', 'Admin')
+INSERT INTO Enrollment VALUES (5, 4, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -241,21 +279,23 @@ CREATE TABLE
 		CourseID INT FOREIGN KEY REFERENCES Courses(CourseID) NOT NULL,
 		StudentID INT FOREIGN KEY REFERENCES Students(StudentID) NOT NULL,
 		Grade VARCHAR(2) NOT NULL,
-		GradeDate DATETIME2 NOT NULL
+		GradeDate DATETIME2 NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Grades VALUES (1, 1, 'VG', '2022-09-15')
-INSERT INTO Grades VALUES (3, 1, 'VG', '2022-11-15')
-INSERT INTO Grades VALUES (5, 1, 'VG', '2023-01-15')
-INSERT INTO Grades VALUES (6, 1, 'VG', '2023-03-15')
-INSERT INTO Grades VALUES (1, 3, 'VG', '2022-09-15')
-INSERT INTO Grades VALUES (3, 3, 'VG', '2022-11-15')
-INSERT INTO Grades VALUES (5, 3, 'VG', '2023-01-15')
-INSERT INTO Grades VALUES (6, 3, 'VG', '2023-03-15')
-INSERT INTO Grades VALUES (3, 1, 'VG', '2022-11-15')
-INSERT INTO Grades VALUES (5, 1, 'VG', '2023-01-15')
-INSERT INTO Grades VALUES (7, 4, 'VG', '2022-08-01')
-INSERT INTO Grades VALUES (8, 4, 'G', '2022-09-01')
+INSERT INTO Grades VALUES (1, 1, 'VG', '2022-09-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (3, 1, 'VG', '2022-11-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (5, 1, 'VG', '2023-01-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (6, 1, 'VG', '2023-03-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (1, 3, 'VG', '2022-09-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (3, 3, 'VG', '2022-11-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (5, 3, 'VG', '2023-01-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (6, 3, 'VG', '2023-03-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (3, 1, 'VG', '2022-11-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (5, 1, 'VG', '2023-01-15', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (7, 4, 'VG', '2022-08-01', '2023-03-13', 'Admin')
+INSERT INTO Grades VALUES (8, 4, 'G', '2022-09-01', '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -263,16 +303,18 @@ CREATE TABLE
 		ClassroomID INT IDENTITY(1,1) PRIMARY KEY, 
 		ClassroomName VARCHAR(10) NOT NULL,
 		HasComputers INT NOT NULL,
-		IsAccessible INT NOT NULL
+		IsAccessible INT NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Classrooms VALUES ('A211', 0, 1)
-INSERT INTO Classrooms VALUES ('A215', 0, 1)
-INSERT INTO Classrooms VALUES ('B205', 0, 1)
-INSERT INTO Classrooms VALUES ('B404', 0, 1)
-INSERT INTO Classrooms VALUES ('C305', 0, 1)
-INSERT INTO Classrooms VALUES ('C404', 0, 1)
-INSERT INTO Classrooms VALUES ('A210', 1, 0)
+INSERT INTO Classrooms VALUES ('A211', 0, 1, '2023-03-13', 'Admin')
+INSERT INTO Classrooms VALUES ('A215', 0, 1, '2023-03-13', 'Admin')
+INSERT INTO Classrooms VALUES ('B205', 0, 1, '2023-03-13', 'Admin')
+INSERT INTO Classrooms VALUES ('B404', 0, 1, '2023-03-13', 'Admin')
+INSERT INTO Classrooms VALUES ('C305', 0, 1, '2023-03-13', 'Admin')
+INSERT INTO Classrooms VALUES ('C404', 0, 1, '2023-03-13', 'Admin')
+INSERT INTO Classrooms VALUES ('A210', 1, 0, '2023-03-13', 'Admin')
 
 
 CREATE TABLE
@@ -281,14 +323,16 @@ CREATE TABLE
 		CourseID INT FOREIGN KEY REFERENCES Courses(CourseID),
 		ClassroomID INT FOREIGN KEY REFERENCES Classrooms(ClassroomID),
 		IsOnline INT NOT NULL,
-		ClassDate DATETIME2 NOT NULL
+		ClassDate DATETIME2 NOT NULL,
+		UpdateDate DATETIME2 NOT NULL,
+		UpdatedBy VARCHAR(255) NOT NULL
 	)
 
-INSERT INTO Classes VALUES (6, 1, 0, '2023-02-15')
-INSERT INTO Classes VALUES (6, 4, 0, '2023-02-16')
-INSERT INTO Classes VALUES (6, 4, 0, '2023-02-20')
-INSERT INTO Classes VALUES (6, NULL, 1, '2023-02-21')
-INSERT INTO Classes VALUES (6, 4, 0, '2023-02-23')
+INSERT INTO Classes VALUES (6, 1, 0, '2023-02-15', '2023-03-13', 'Admin')
+INSERT INTO Classes VALUES (6, 4, 0, '2023-02-16', '2023-03-13', 'Admin')
+INSERT INTO Classes VALUES (6, 4, 0, '2023-02-20', '2023-03-13', 'Admin')
+INSERT INTO Classes VALUES (6, NULL, 1, '2023-02-21', '2023-03-13', 'Admin')
+INSERT INTO Classes VALUES (6, 4, 0, '2023-02-23', '2023-03-13', 'Admin')
 
 
 --some queries to test the database
