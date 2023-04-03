@@ -2,7 +2,9 @@
 USE DVStaging
 GO
 
+-- tables created with the assistant
 -- script to get data from DVSource
+DECLARE @time DATETIME2 = GETDATE()
 
 INSERT INTO
 	Department
@@ -10,7 +12,7 @@ SELECT
 	DepartmentID AS DepartmentID,
 	DepartmentName AS DepartmentName,
 	DepartmentCode AS DepartmentCode,
-	GETDATE() AS Timestamp,
+	@time AS Timestamp,
 	'DVSource.dbo.Department' AS RecordSource,
 	HASHBYTES('md5', CAST(DepartmentID AS VARCHAR(MAX))) AS DepartmentIDHash
 FROM
@@ -27,7 +29,7 @@ SELECT
 	Address AS Address,
 	City AS City,
 	DepartmentID AS DepartmentID,
-	GETDATE() AS Timestamp,
+	@time AS Timestamp,
 	'DVSource.dbo.Employee' AS RecordSource,
 	HASHBYTES('md5', CAST(EmployeeID AS VARCHAR(MAX))) AS EmployeeIDHash
 FROM
@@ -40,7 +42,7 @@ SELECT
 	ProjectID AS ProjectID,
 	ProjectName AS ProjecttName,
 	ProjectCode AS ProjectCode,
-	GETDATE() AS Timestamp,
+	@time AS Timestamp,
 	'DVSource.dbo.Project' AS RecordSource,
 	HASHBYTES('md5', CAST(ProjectID AS VARCHAR(MAX))) AS ProjectIDHash
 FROM
@@ -53,7 +55,7 @@ SELECT
 	LinkWO_ID AS LinkWO_ID,
 	EmployeeID AS EmployeeID,
 	ProjectID AS ProjectID,
-	GETDATE() AS Timestamp,
+	@time AS Timestamp,
 	'DVSource.dbo.Link_WorkOn' AS RecordSource,
 	HASHBYTES('md5', CAST(LinkWO_ID AS VARCHAR(MAX))) AS LinkWO_IDHash
 FROM
