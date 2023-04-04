@@ -42,15 +42,29 @@ INSERT INTO
 	LinkEmpProj
 SELECT
 	LinkWO_IDHash AS HK_LinkEmpProj,
-	HASHBYTES('md5', CAST(EmployeeID AS VARCHAR(50))) AS HK_EmpID,
-	HASHBYTES('md5', CAST(ProjectID AS VARCHAR(50))) AS HK_ProjID,
+	HASHBYTES('md5', CAST(ProjectID AS VARCHAR(MAX))) AS HK_ProjID,
+	HASHBYTES('md5', CAST(EmployeeID AS VARCHAR(MAX))) AS HK_EmpID,
 	Timestamp AS LoadDate,
 	RecordSource AS RecordSource
 FROM
 	DVStaging.dbo.Link_WorkOn
 
 
--- no idea how to deal with LinkDeptEmp
+-- no idea if this is the right way to deal with LinkDeptEmp
+INSERT INTO 
+	LinkDeptEmp
+SELECT 
+	HASHBYTES('md5', D.DepartmentIDHash + E.EmployeeIDHash),
+	D.DepartmentIDHash,
+	E.EmployeeIDHash,
+    E.Timestamp,
+    D.RecordSource
+FROM 
+	DVStaging.dbo.Employee E 
+INNER JOIN 
+	DVStaging.dbo.Department D
+ON 
+	E.DepartmentID = D.DepartmentID
 
 
 INSERT INTO
