@@ -269,6 +269,13 @@ CREATE TABLE
 		RecordSource VARCHAR(50) NULL,
 		PRIMARY KEY(StaffHashKey, LoadDate))
 
+CREATE TABLE
+	PITCustomer(
+	CustomerHashKey VARBINARY(16) PRIMARY KEY,
+	LoadDate DATETIME2 NOT NULL,
+	SatCustomerLoadDate DATETIME2 NULL,
+	SatCustomerInfoLoadDate DATETIME2 NULL)
+
 
 -- get data from DVBikestoresStaging
 
@@ -617,6 +624,22 @@ FROM
 	DVBikeStoresStaging.sales.staffs
 GO
 
+INSERT INTO
+	PITCustomer
+SELECT
+	C.CustomerHashKey,
+	CI.LoadDate,
+	C.LoadDate,
+	CI.LoadDate
+FROM
+	SatCustomer AS C
+INNER JOIN
+	SatCustomerInfo AS CI
+ON
+	C.CustomerHashKey = CI.CustomerHashKey
+AND
+	CI.LoadDate <= C.LoadDate
+
 
 -- sample query to test if it's working
 
@@ -631,3 +654,7 @@ INNER JOIN
 	SatStaff AS M
 ON
 	HASHBYTES('md5', CAST(S.ManagerKey AS VARCHAR(10))) = M.StaffHashKey
+
+
+
+
