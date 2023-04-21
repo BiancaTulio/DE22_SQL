@@ -112,7 +112,7 @@ CREATE TABLE
 		FactSalesKey INT IDENTITY(1,1) PRIMARY KEY,					
 		OrderDateKey INT FOREIGN KEY REFERENCES DimOrderDate(OrderDateKey),
 		StoreKey VARBINARY(16) FOREIGN KEY REFERENCES DimStore(StoreHashKey),
-		StaffKey VARBINARY(16) FOREIGN KEY REFERENCES DimStaff(StaffHashKey),
+		--StaffKey VARBINARY(16) FOREIGN KEY REFERENCES DimStaff(StaffHashKey),
 		CustomerKey VARBINARY(16) FOREIGN KEY REFERENCES DimCustomer(CustomerHashKey),
 		ProductKey VARBINARY(16) FOREIGN KEY REFERENCES DimProduct(ProductHashKey),
 		RequiredDateKey INT FOREIGN KEY REFERENCES DimRequiredDate(RequiredDateKey),
@@ -273,7 +273,7 @@ EXEC usp_DimShippedDateAdd '2012-01-01', '2024-12-14'
 INSERT INTO
 	DimCustomer
 SELECT
-	H.CustomerHashKey,
+	HASHBYTES('md5', (C.CustomerHashKey + HASHBYTES('md5', CAST(C.LoadDate AS VARCHAR(10))))),
 	H.CustomerKey,
 	C.FirstName,
 	C.LastName,
@@ -283,7 +283,7 @@ SELECT
 	CI.LoadEndDate,
 	(CASE WHEN CI.LoadEndDate = '9999-12-31' THEN 1 ELSE 0 END)
 FROM
-	DVBikeStoresEDW.dbo.SatCustomer	AS C
+	DVBikeStoresEDW.dbo.SatCustomer	AS C		   
 INNER JOIN
 	DVBikeStoresEDW.dbo.SatCustomerInfo	AS CI
 ON
@@ -298,7 +298,7 @@ ON
 INSERT INTO
 	DimProduct
 SELECT
-	H.ProductHashKey,
+	HASHBYTES('md5', (P.ProductHashKey + HASHBYTES('md5', CAST(P.LoadDate AS VARCHAR(10))))),
 	H.ProductKey,
 	LEFT(P.ProductName, 25),
 	P.ModelYear,
@@ -337,54 +337,57 @@ INNER JOIN
     DVBikeStoresEDW.dbo.SatBrand AS SB
 ON
 	HB.BrandHashKey = SB.BrandHashKey
+GO
 
+--not working!!
 WITH 
 	ManagerHK
 AS
 (
 	SELECT
-		S.StaffHashKey AS StaffHashKey,
-		S.FirstName AS StaffFirstName,
-		S.LastName AS StaffLastName,
-		M.StaffHashKey AS ManagerHashKey,
-		M.FirstName AS ManagerFirstName,
-		M.LastName AS ManagerLastName,
-		S.LoadDate AS LoadDate,
-		S.LoadEndDate AS LoadEndDate
+		SM.StaffHashKey AS StaffHashKey,
+		SM.ManagerHashKey AS ManagerHashKey,
+		S.FirstName AS ManagerFirstName,
+		S.LastName AS ManagerLastName
 	FROM
-		DVBikeStoresEDW.dbo.HubStaff AS H
+		DVBikeStoresEDW.dbo.LinkStaffManager AS SM
 	INNER JOIN
 		DVBikeStoresEDW.dbo.SatStaff AS S
 	ON
-		S.ManagerKey = H.StaffKey
-	INNER JOIN
-		DVBikeStoresEDW.dbo.SatStaff AS M
-	ON
-		H.StaffHashKey = M.StaffHashKey
+		SM.ManagerHashKey = S.StaffHashKey
 )
-INSERT INTO
-	DimStaff
+--INSERT INTO
+	--DimStaff
 SELECT
-	H.StaffHashKey,
-	H.StaffKey,
-	StaffFirstName,
-	StaffLastName,
-	ManagerFirstName,
-	ManagerLastName,
-	M.LoadDate,
-	M.LoadEndDate,
-	(CASE WHEN M.LoadEndDate = '9999-12-31' THEN 1 ELSE 0 END)
+	HASHBYTES('md5', (S.StaffHashKey + HASHBYTES('md5', CAST(S.LoadDate AS VARCHAR(10))))),
+	HS.StaffKey,
+	S.FirstName,
+	S.LastName,
+	M.ManagerFirstName,
+	M.ManagerLastName,
+	S.LoadDate,
+	S.LoadEndDate,
+	(CASE WHEN S.LoadEndDate = '9999-12-31' THEN 1 ELSE 0 END)
 FROM
-	DVBikeStoresEDW.dbo.HubStaff AS H
-INNER JOIN
 	ManagerHK AS M
+JOIN
+	DVBikeStoresEDW.dbo.LinkStaffManager AS SM
 ON
-	H.StaffHashKey = M.StaffHashKey
+	M.ManagerHashKey = SM.ManagerHashKey
+JOIN
+	DVBikeStoresEDW.dbo.HubStaff AS HS
+ON
+	SM.StaffHashKey = HS.StaffHashKey
+JOIN
+	DVBikeStoresEDW.dbo.SatStaff AS S
+ON
+	HS.StaffHashKey = S.StaffHashKey
+GO
 
 INSERT INTO
 	DimStore
 SELECT
-	H.StoreHashKey,
+	HASHBYTES('md5', (S.StoreHashKey + HASHBYTES('md5', CAST(S.LoadDate AS VARCHAR(10))))),
 	H.StoreKey,
 	S.StoreName,
 	S.City,
@@ -398,16 +401,16 @@ INNER JOIN
 	DVBikeStoresEDW.dbo.SatStore AS S
 ON
 	H.StoreHashKey = S.StoreHashKey
-
+GO
 
 INSERT INTO
 	FactSales
 SELECT
 	CAST(REPLACE(CAST(SO.OrderDate AS VARCHAR(10)), '-', '') AS INT),
-	LOStr.StoreHashKey,
-	LOS.StaffHashKey,
-	LCO.CustomerHashKey,
-	LOI.ProductHashKey,
+	HASHBYTES('md5', (St.StoreHashKey + HASHBYTES('md5', CAST(St.LoadDate AS VARCHAR(10))))),
+	--LOS.StaffHashKey,
+	HASHBYTES('md5', (C.CustomerHashKey + HASHBYTES('md5', CAST(C.LoadDate AS VARCHAR(10))))),
+	HASHBYTES('md5', (P.ProductHashKey + HASHBYTES('md5', CAST(P.LoadDate AS VARCHAR(10))))),
 	CAST(REPLACE(CAST(SO.RequiredDate AS VARCHAR(10)), '-', '') AS INT),
 	CAST(REPLACE(CAST(SO.ShippedDate AS VARCHAR(10)), '-', '') AS INT),
 	SO.OrderStatus,
@@ -430,6 +433,10 @@ INNER JOIN
 ON
 	H.OrderHashKey = LCO.OrderHashKey
 INNER JOIN
+	DVBikeStoresEDW.dbo.SatCustomer AS C
+ON
+	LCO.CustomerHashKey = C.CustomerHashKey
+INNER JOIN
 	DVBikeStoresEDW.dbo.LinkOrderItem AS LOI
 ON
 	H.OrderHashKey = LOI.OrderHashKey
@@ -438,6 +445,10 @@ INNER JOIN
 ON
 	H.OrderHashKey = LOStr.OrderHashKey
 INNER JOIN
+	DVBikeStoresEDW.dbo.SatStore AS St
+ON
+	LOStr.StoreHashKey = St.StoreHashKey
+INNER JOIN
 	DVBikeStoresEDW.dbo.SatOrderItem AS SOI
 ON
 	LOI.OrderItemHashKey = SOI.OrderItemHashKey
@@ -445,9 +456,43 @@ INNER JOIN
 	DVBikeStoresEDW.dbo.SatProduct AS P
 ON
 	LOI.ProductHashKey = P.ProductHashKey
+WHERE
+	H.LoadDate <= SO.LoadDate
+AND
+	LOS.LoadDate <= SO.LoadDate
+AND
+	LCO.LoadDate <= SO.LoadDate
+AND
+	C.LoadDate <= SO.LoadDate
+AND
+	LOI.LoadDate <= SO.LoadDate
+AND
+	LOStr.LoadDate <= SO.LoadDate
+AND
+	St.LoadDate <= SO.LoadDate
+AND
+	SOI.LoadDate <= SO.LoadDate
+AND
+	P.LoadDate <= SO.LoadDate
 
 
 
+-- queries to test
+
+SELECT
+	ProductName,
+	Date,
+	ListPrice
+FROM
+	FactSales AS F
+INNER JOIN
+	DimOrderDate AS D
+ON
+	F.OrderDateKey = D.OrderDateKey
+INNER JOIN
+	DimProduct As P
+ON
+	F.ProductKey = P.ProductHashKey
 
 	
 
